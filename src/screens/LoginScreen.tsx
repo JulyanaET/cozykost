@@ -41,7 +41,7 @@ const LoginScreen = ({navigation}) => {
         isPassword={true}
       />
 
-      <Button title="Login" onPress={() => {}} />
+      <Button title="Login" onPress={() => navigation.navigate('Main')} />
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Belum punya akun CozyKost? </Text>
