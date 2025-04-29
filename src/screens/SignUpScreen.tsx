@@ -6,7 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import {FaChevronLeft} from 'react-icons/fa6';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import TextLink from '../components/TextLink';
@@ -25,7 +25,7 @@ const SignUpScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <FaChevronLeft size={24} color="black" />
+          <FontAwesome6 name="chevron-left" size={24} color="black" />
         </TouchableOpacity>
       </View>
 

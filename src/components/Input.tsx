@@ -7,7 +7,7 @@ import {
   StyleSheet,
   KeyboardTypeOptions,
 } from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
 interface InputProps {
   label: string;
@@ -43,10 +43,10 @@ const Input = ({
             placeholder={placeholder}
           />
           <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}>
-            <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+            style={styles.eyeIcon}
+            onPress={() => setShowPassword(!showPassword)}>
+            <FontAwesome6
+              name={showPassword ? 'eye-slash' : 'eye'}
               size={20}
               color="#999999"
             />

@@ -6,14 +6,14 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import {FaXmark, FaCheck} from 'react-icons/fa6';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
 const SuccessSignUpScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <FaXmark size={24} color="black" />
+          <FontAwesome6 name="xmark" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
@@ -21,7 +21,7 @@ const SuccessSignUpScreen = ({navigation}) => {
 
       <View style={styles.successIconContainer}>
         <View style={styles.successIcon}>
-          <FaCheck size={70} color="#FFFFFF" />
+          <FontAwesome6 name="check" size={70} color="#FFFFFF" />
         </View>
       </View>
 

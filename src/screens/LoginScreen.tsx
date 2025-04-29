@@ -6,7 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import {FaChevronLeft} from 'react-icons/fa6';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import TextLink from '../components/TextLink';
@@ -19,15 +19,11 @@ const LoginScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <FaChevronLeft size={24} color="black" />
+          <FontAwesome6 name="chevron-left" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
       <Text style={styles.title}>Login Pencari Kost</Text>
-
-      <View style={styles.divider}>
-        <Text style={styles.dividerText}>atau</Text>
-      </View>
 
       <Input
         label="Nomor Handphone"
@@ -79,14 +75,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 30,
     color: '#000000',
-  },
-  divider: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerText: {
-    fontSize: 14,
-    color: '#999999',
   },
   footer: {
     flexDirection: 'row',
