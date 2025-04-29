@@ -23,7 +23,7 @@ const LoginScreen = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Login Pencari Kost</Text>
+      <Text style={styles.title}>Login</Text>
 
       <Input
         label="Nomor Handphone"

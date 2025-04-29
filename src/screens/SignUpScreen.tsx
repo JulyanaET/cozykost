@@ -29,7 +29,7 @@ const SignUpScreen = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Daftar Pencari Kost</Text>
+      <Text style={styles.title}>Daftar</Text>
 
       <Input
         label="Nama Lengkap"
