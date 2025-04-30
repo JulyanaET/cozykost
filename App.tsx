@@ -9,23 +9,29 @@ import SignUpScreen from './src/screens/SignUpScreen';
 import SuccessSignUpScreen from './src/screens/SuccessSignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import BottomNavBar from './src/components/BottomNavBar';
-import {View, StyleSheet} from 'react-native';
+import MyKostScreen from './src/screens/MyKostScreen';
+import {View, StyleSheet, Text} from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
-function MainNavigator() {
+function MainNavigator({navigation}: any) {
   const [activeTab, setActiveTab] = useState('Home');
+
+  const handleTabPress = (tabName: string) => {
+    setActiveTab(tabName);
+    navigation.navigate(tabName); // Navigasi ke layar berdasarkan tabName
+  };
 
   const renderScreen = () => {
     switch (activeTab) {
       case 'Home':
         return <HomeScreen />;
       case 'Saved':
-        return <View style={styles.placeholderScreen} />;
-      case 'History':
-        return <View style={styles.placeholderScreen} />;
+        return <View style={styles.placeholderScreen}><Text>Saved Screen</Text></View>;
+      case 'MyKost':
+        return <MyKostScreen />;
       case 'Profile':
-        return <View style={styles.placeholderScreen} />;
+        return <View style={styles.placeholderScreen}><Text>Profile Screen</Text></View>;
       default:
         return <HomeScreen />;
     }
@@ -34,7 +40,7 @@ function MainNavigator() {
   return (
     <View style={styles.container}>
       {renderScreen()}
-      <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+      <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
     </View>
   );
 }
@@ -64,6 +70,7 @@ function App(): React.JSX.Element {
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SuccessSignUp" component={SuccessSignUpScreen} />
           <Stack.Screen name="Main" component={MainNavigator} />
+          <Stack.Screen name="MyKost" component={MyKostScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
 interface BottomNavBarProps {
@@ -7,7 +7,7 @@ interface BottomNavBarProps {
   onTabPress: (tabName: string) => void;
 }
 
-const BottomNavBar = ({activeTab, onTabPress}: BottomNavBarProps) => {
+const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -22,7 +22,7 @@ const BottomNavBar = ({activeTab, onTabPress}: BottomNavBarProps) => {
         <Text
           style={[
             styles.tabLabel,
-            {color: activeTab === 'Home' ? '#5CB85C' : '#999'},
+            { color: activeTab === 'Home' ? '#5CB85C' : '#999' },
           ]}>
           Home
         </Text>
@@ -40,7 +40,7 @@ const BottomNavBar = ({activeTab, onTabPress}: BottomNavBarProps) => {
         <Text
           style={[
             styles.tabLabel,
-            {color: activeTab === 'Saved' ? '#5CB85C' : '#999'},
+            { color: activeTab === 'Saved' ? '#5CB85C' : '#999' },
           ]}>
           Saved
         </Text>
@@ -48,19 +48,19 @@ const BottomNavBar = ({activeTab, onTabPress}: BottomNavBarProps) => {
 
       <TouchableOpacity
         style={styles.tabItem}
-        onPress={() => onTabPress('History')}>
+        onPress={() => onTabPress('MyKost')}>
         <FontAwesome6
-          name="clock-rotate-left"
+          name="building"
           size={20}
-          color={activeTab === 'History' ? '#5CB85C' : '#999'}
-          solid={activeTab === 'History'}
+          color={activeTab === 'MyKost' ? '#5CB85C' : '#999'}
+          solid={activeTab === 'MyKost'}
         />
         <Text
           style={[
             styles.tabLabel,
-            {color: activeTab === 'History' ? '#5CB85C' : '#999'},
+            { color: activeTab === 'MyKost' ? '#5CB85C' : '#999' },
           ]}>
-          History
+          MyKost
         </Text>
       </TouchableOpacity>
 
@@ -76,7 +76,7 @@ const BottomNavBar = ({activeTab, onTabPress}: BottomNavBarProps) => {
         <Text
           style={[
             styles.tabLabel,
-            {color: activeTab === 'Profile' ? '#5CB85C' : '#999'},
+            { color: activeTab === 'Profile' ? '#5CB85C' : '#999' },
           ]}>
           Profile
         </Text>
