@@ -10,6 +10,7 @@ import SuccessSignUpScreen from './src/screens/SuccessSignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import BottomNavBar from './src/components/BottomNavBar';
 import MyKostScreen from './src/screens/MyKostScreen';
+import FavoriteScreen from './src/screens/FavoriteScreen';
 import {View, StyleSheet, Text} from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -27,7 +28,7 @@ function MainNavigator({navigation}: any) {
       case 'Home':
         return <HomeScreen />;
       case 'Saved':
-        return <View style={styles.placeholderScreen}><Text>Saved Screen</Text></View>;
+        return <FavoriteScreen />;
       case 'MyKost':
         return <MyKostScreen />;
       case 'Profile':
@@ -71,6 +72,8 @@ function App(): React.JSX.Element {
           <Stack.Screen name="SuccessSignUp" component={SuccessSignUpScreen} />
           <Stack.Screen name="Main" component={MainNavigator} />
           <Stack.Screen name="MyKost" component={MyKostScreen} />
+          <Stack.Screen name="Favorite" component={FavoriteScreen} />
+          {/* Tambahkan layar lain sesuai kebutuhan */}
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
