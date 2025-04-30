@@ -16,7 +16,8 @@ type RootStackParamList = {
   MyKost: undefined;
   Favorite: undefined;
   Profile: undefined;
-  Setting: undefined; // Tambahkan layar Setting
+  Setting: undefined;
+  EditProfile: undefined; // Tambahkan layar Edit Profile
 };
 
 const Profile = () => {
@@ -32,6 +33,10 @@ const Profile = () => {
     navigation.navigate('Setting'); // Navigasi ke layar Setting
   };
 
+  const handleEditProfilePress = () => {
+    navigation.navigate('EditProfile'); // Navigasi ke layar Edit Profile
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -40,7 +45,7 @@ const Profile = () => {
           <View style={styles.profilePictureLarge} />
           <Text style={styles.userNameLarge}>User</Text>
           <Text style={styles.userPhoneLarge}>08123456789</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleEditProfilePress}>
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>

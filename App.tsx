@@ -14,6 +14,7 @@ import FavoriteScreen from './src/screens/FavoriteScreen';
 import ViewedScreen from './src/screens/ViewedScreens';
 import ProfileScreen from './src/screens/ProfileScreen';
 import SettingScreen from './src/screens/SettingScreen'; // Ganti dengan layar yang sesuai
+import EditProfileScreen from './src/screens/EditProfile'; // Ganti dengan layar yang sesuai
 import {View, StyleSheet, Text, Settings} from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -69,6 +70,7 @@ function App(): React.JSX.Element {
           screenOptions={{
             headerShown: false,
           }}>
+
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
@@ -79,8 +81,9 @@ function App(): React.JSX.Element {
           <Stack.Screen name="Viewed" component={ViewedScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Setting" component={SettingScreen} />  
-          {/* Ganti dengan layar yang sesuai */}
-          {/* Tambahkan layar lain sesuai kebutuhan */}
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+         
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

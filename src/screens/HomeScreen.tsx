@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import BottomNavBar from '../components/BottomNavBar';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -18,7 +21,21 @@ const FONTS = {
   SEMIBOLD: 'Geist-SemiBold',
 };
 
-const HomeScreen = ({navigation}) => {
+type RootStackParamList = {
+  Home: undefined;
+  MyKost: undefined;
+  Favorite: undefined;
+  Profile: undefined;
+};
+
+const HomeScreen = () => {
+  const [activeTab, setActiveTab] = useState('Home');
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleTabPress = (tabName: string) => {
+    setActiveTab(tabName);
+    navigation.navigate(tabName as keyof RootStackParamList); // Navigasi ke layar berdasarkan tabName
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -281,6 +298,7 @@ const HomeScreen = ({navigation}) => {
           <View style={{height: 80}} />
         </View>
       </ScrollView>
+      <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
     </SafeAreaView>
   );
 };

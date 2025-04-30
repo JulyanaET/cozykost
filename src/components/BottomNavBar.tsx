@@ -30,17 +30,17 @@ const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
 
       <TouchableOpacity
         style={styles.tabItem}
-        onPress={() => onTabPress('Saved')}>
+        onPress={() => onTabPress('Favorite')}>
         <FontAwesome6
           name="bookmark"
           size={20}
-          color={activeTab === 'Saved' ? '#5CB85C' : '#999'}
+          color={activeTab === 'Favorite' ? '#5CB85C' : '#999'}
           solid={activeTab === 'Saved'}
         />
         <Text
           style={[
             styles.tabLabel,
-            { color: activeTab === 'Saved' ? '#5CB85C' : '#999' },
+            { color: activeTab === 'Favorite' ? '#5CB85C' : '#999' },
           ]}>
           Saved
         </Text>

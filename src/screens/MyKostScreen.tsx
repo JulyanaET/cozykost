@@ -14,7 +14,9 @@ type RootStackParamList = {
   Home: undefined;
   MyKost: undefined;
   Favorite: undefined;
-  Viewed: undefined;
+  Profile: undefined;
+  Setting: undefined;
+  EditProfile: undefined; 
 };
 
 const MyKost = () => {

@@ -15,7 +15,10 @@ type RootStackParamList = {
   Home: undefined;
   MyKost: undefined;
   Favorite: undefined;
-  Viewed: undefined;
+  Profile: undefined;
+  Setting: undefined;
+  EditProfile: undefined; 
+  Viewed: undefined; // Tambahkan layar Viewed
 };
 
 const Viewed = () => {
@@ -63,17 +66,17 @@ const Viewed = () => {
             {activeSubTab === 'favorited' && <View style={styles.activeLine} />}
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => handleSubTabPress('viewed')} style={styles.tabButton}>
+          <TouchableOpacity onPress={() => handleSubTabPress('Viewed')} style={styles.tabButton}>
             <Text
               style={[
                 styles.tabText,
-                activeSubTab === 'viewed' && styles.activeTabText,
+                activeSubTab === 'Viewed' && styles.activeTabText,
                 { fontFamily: FONTS.MEDIUM },
               ]}
             >
               Pernah Dilihat
             </Text>
-            {activeSubTab === 'viewed' && <View style={styles.activeLine} />}
+            {activeSubTab === 'Viewed' && <View style={styles.activeLine} />}
           </TouchableOpacity>
         </View>
 
