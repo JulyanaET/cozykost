@@ -23,7 +23,7 @@ const MyKost = () => {
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
-    navigation.navigate(tabName as keyof RootStackParamList); // ✅ Tambahkan navigasi
+    navigation.navigate(tabName as keyof RootStackParamList); // Navigasi ke layar berdasarkan tabName
   };
 
   const FONTS = {
@@ -70,7 +70,6 @@ const MyKost = () => {
 };
 
 export default MyKost;
-
 
 const styles = StyleSheet.create({
   container: {
