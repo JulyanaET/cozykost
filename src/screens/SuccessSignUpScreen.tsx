@@ -8,6 +8,13 @@ import {
 } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
+const FONTS = {
+  REGULAR: 'Geist-Regular',
+  MEDIUM: 'Geist-Medium',
+  BOLD: 'Geist-Bold',
+  SEMIBOLD: 'Geist-SemiBold',
+};
+
 const SuccessSignUpScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
@@ -52,7 +59,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     marginBottom: 30,
     color: '#000000',
     textAlign: 'center',
@@ -72,6 +79,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
+    fontFamily: FONTS.REGULAR,
     textAlign: 'center',
     marginBottom: 40,
     paddingHorizontal: 20,
@@ -89,7 +97,7 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
   },
 });
 

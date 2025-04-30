@@ -11,6 +11,13 @@ import {
 } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 
+const FONTS = {
+  REGULAR: 'Geist-Regular',
+  MEDIUM: 'Geist-Medium',
+  BOLD: 'Geist-Bold',
+  SEMIBOLD: 'Geist-SemiBold',
+};
+
 const HomeScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
@@ -303,7 +310,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
   },
   searchBarContainer: {
     flexDirection: 'row',
@@ -328,6 +335,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     height: 24,
     padding: 0,
+    fontFamily: FONTS.REGULAR,
   },
   greetingContainer: {
     marginHorizontal: 16,
@@ -335,10 +343,11 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
   },
   subGreetingText: {
     fontSize: 14,
+    fontFamily: FONTS.REGULAR,
     color: '#666',
   },
   categoriesContainer: {
@@ -375,8 +384,8 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
+    fontFamily: FONTS.MEDIUM,
     textAlign: 'center',
-    fontWeight: '500',
   },
   bannerContainer: {
     marginHorizontal: 16,
@@ -403,7 +412,7 @@ const styles = StyleSheet.create({
   },
   bannerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     textShadowColor: '#000',
     textShadowOffset: {width: 0, height: 2},
     textShadowRadius: 6,
@@ -420,7 +429,7 @@ const styles = StyleSheet.create({
   exploreButtonText: {
     color: 'white',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
   },
   scanButtonContainer: {
     flexDirection: 'row',
@@ -440,6 +449,7 @@ const styles = StyleSheet.create({
   },
   scanButtonText: {
     fontSize: 14,
+    fontFamily: FONTS.MEDIUM,
     color: '#333',
   },
   scanIconContainer: {
@@ -471,7 +481,7 @@ const styles = StyleSheet.create({
   },
   cityFilterButtonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: FONTS.MEDIUM,
     color: '#333',
   },
   sectionContainer: {
@@ -487,13 +497,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     color: '#333',
   },
   viewAllText: {
     fontSize: 14,
+    fontFamily: FONTS.MEDIUM,
     color: '#5CB85C',
-    fontWeight: '500',
   },
   horizontalScroll: {
     paddingBottom: 12,
@@ -525,7 +535,7 @@ const styles = StyleSheet.create({
   },
   nearPropertyName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     color: '#333',
     marginBottom: 4,
     paddingHorizontal: 12,
@@ -538,6 +548,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
+    fontFamily: FONTS.REGULAR,
     color: '#666',
     marginLeft: 4,
     flexShrink: 1,
@@ -555,7 +566,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     color: '#333',
     marginLeft: 2,
   },
@@ -573,6 +584,7 @@ const styles = StyleSheet.create({
   },
   facilityText: {
     fontSize: 12,
+    fontFamily: FONTS.REGULAR,
     color: '#666',
   },
   recommendedCard: {
@@ -597,14 +609,14 @@ const styles = StyleSheet.create({
   },
   recommendedName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     marginBottom: 6,
     color: '#333',
   },
   recommendedPrice: {
     fontSize: 14,
+    fontFamily: FONTS.SEMIBOLD,
     color: '#5CB85C',
-    fontWeight: '600',
   },
   categoryBadge: {
     position: 'absolute',
@@ -620,6 +632,7 @@ const styles = StyleSheet.create({
   },
   categoryBadgeText: {
     fontSize: 10,
+    fontFamily: FONTS.REGULAR,
     color: '#333',
     marginLeft: 4,
   },

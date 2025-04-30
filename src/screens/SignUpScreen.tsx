@@ -11,6 +11,13 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import TextLink from '../components/TextLink';
 
+const FONTS = {
+  REGULAR: 'Geist-Regular',
+  MEDIUM: 'Geist-Medium',
+  BOLD: 'Geist-Bold',
+  SEMIBOLD: 'Geist-SemiBold',
+};
+
 const SignUpScreen = ({navigation}) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -87,7 +94,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: FONTS.BOLD,
     marginBottom: 30,
     color: '#000000',
   },
@@ -98,6 +105,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
+    fontFamily: FONTS.REGULAR,
     color: '#000000',
   },
 });
