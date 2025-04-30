@@ -16,6 +16,7 @@ type RootStackParamList = {
   MyKost: undefined;
   Favorite: undefined;
   Profile: undefined;
+  Setting: undefined; // Tambahkan layar Setting
 };
 
 const Profile = () => {
@@ -25,6 +26,10 @@ const Profile = () => {
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
     navigation.navigate(tabName as keyof RootStackParamList); // Navigasi ke layar berdasarkan tabName
+  };
+
+  const handleSettingPress = () => {
+    navigation.navigate('Setting'); // Navigasi ke layar Setting
   };
 
   return (
@@ -85,7 +90,7 @@ const Profile = () => {
           <Text style={styles.notVerifiedText}>Not Verified</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity style={styles.menuItem} onPress={handleSettingPress}>
           <Icon name="cog-outline" size={24} color="#212121" />
           <Text style={styles.menuText}>Pengaturan</Text>
         </TouchableOpacity>

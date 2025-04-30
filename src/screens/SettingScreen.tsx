@@ -1,20 +1,22 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Switch} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 
-const Settings = () => {
+const Setting = () => {
   const [emailNotification, setEmailNotification] = useState(true);
   const [chatNotification, setChatNotification] = useState(true);
+  const navigation = useNavigation(); // Gunakan navigation untuk kembali ke layar sebelumnya
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}> {/* Navigasi kembali */}
           <Icon name="arrow-left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Pengaturan</Text>
-        <View style={{width: 24}} /> {/* Placeholder for alignment */}
+        <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
       </View>
 
       {/* Settings List */}
@@ -145,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings;
+export default Setting;

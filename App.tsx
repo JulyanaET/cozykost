@@ -78,7 +78,7 @@ function App(): React.JSX.Element {
           <Stack.Screen name="Favorite" component={FavoriteScreen} />
           <Stack.Screen name="Viewed" component={ViewedScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="Setting" component={SettingScreen} /> {/* Ganti dengan layar yang sesuai */}
+          <Stack.Screen name="Setting" component={SettingScreen} />  
           {/* Ganti dengan layar yang sesuai */}
           {/* Tambahkan layar lain sesuai kebutuhan */}
         </Stack.Navigator>
