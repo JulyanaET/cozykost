@@ -417,41 +417,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignSelf: 'flex-start',
   },
-  exploreButtonSmall: {
-    backgroundColor: '#5CB85C',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-  },
   exploreButtonText: {
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
-  },
-  miniBannerContainer: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    overflow: 'hidden',
-    height: 100,
-  },
-  miniBannerImage: {
-    width: '100%',
-    height: '100%',
-  },
-  miniBannerOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 12,
-  },
-  miniBannerTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 6,
   },
   scanButtonContainer: {
     flexDirection: 'row',
@@ -505,35 +474,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#333',
   },
-  promotionContainer: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 12,
-    padding: 12,
-  },
-  promotionHeader: {
-    marginBottom: 12,
-  },
-  infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-  },
-  actionButtonText: {
-    fontSize: 12,
-  },
   sectionContainer: {
     marginHorizontal: 16,
     marginTop: 8,
@@ -563,19 +503,6 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     paddingRight: 8,
   },
-  propertyCard: {
-    marginRight: 16,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    width: 180,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 3},
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-    overflow: 'hidden',
-    position: 'relative',
-  },
   nearPropertyCard: {
     marginTop: 16,
     marginRight: 16,
@@ -596,9 +523,6 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 8,
   },
-  nearPropertyContent: {
-    flex: 1,
-  },
   nearPropertyName: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -606,53 +530,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     paddingHorizontal: 12,
   },
-  locationBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  dividerText: {
-    fontSize: 10,
-    color: '#666',
-    marginHorizontal: 4,
-  },
-  badgeContainer: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 16,
-    zIndex: 1,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  badgeText: {
-    fontSize: 10,
-    color: '#666',
-    marginLeft: 4,
-  },
-  propertyMetaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  cityText: {
-    fontSize: 12,
-    color: '#666',
-  },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 32,
     paddingHorizontal: 12,
-  },
-  locationIcon: {
-    marginRight: 4,
   },
   locationText: {
     fontSize: 12,
@@ -660,26 +542,22 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     flexShrink: 1,
   },
-  ratingContainer: {
+  ratingBadge: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 10,
   },
   ratingText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#333',
     marginLeft: 2,
-  },
-  ratingNumber: {
-    fontSize: 12,
-    marginLeft: 4,
-    color: '#666',
-    fontWeight: '500',
   },
   facilityContainer: {
     flexDirection: 'row',
@@ -756,17 +634,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
-  },
-  ratingBadge: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 10,
   },
 });
 
