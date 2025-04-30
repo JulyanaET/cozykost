@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from 'react-native';
 import BottomNavBar from '../components/BottomNavBar';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  Home: undefined;
+  MyKost: undefined;
+  Favorite: undefined;
+  Viewed: undefined;
+};
 
 const MyKost = () => {
   const [activeTab, setActiveTab] = useState('MyKost');
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
-    // Tambahkan navigasi jika diperlukan
+    navigation.navigate(tabName as keyof RootStackParamList); // ✅ Tambahkan navigasi
   };
 
   const FONTS = {
@@ -54,6 +70,7 @@ const MyKost = () => {
 };
 
 export default MyKost;
+
 
 const styles = StyleSheet.create({
   container: {

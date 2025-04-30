@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+} from 'react-native';
 import BottomNavBar from '../components/BottomNavBar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,20 +18,20 @@ type RootStackParamList = {
   Viewed: undefined;
 };
 
-const Favorite = () => {
+const Viewed = () => {
   const [activeTab, setActiveTab] = useState('Favorite');
-  const [activeSubTab, setActiveSubTab] = useState<'favorited' | 'viewed'>('favorited');
+  const [activeSubTab, setActiveSubTab] = useState<'favorited' | 'viewed'>('viewed');
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
-    navigation.navigate(tabName as keyof RootStackParamList); // Navigasi ke layar berdasarkan tabName
+    navigation.navigate(tabName as keyof RootStackParamList);
   };
 
   const handleSubTabPress = (tab: 'favorited' | 'viewed') => {
     setActiveSubTab(tab);
-    if (tab === 'viewed') {
-      navigation.navigate('Viewed'); // Navigasi ke layar "Viewed"
+    if (tab === 'favorited') {
+      navigation.navigate('Favorite'); // ✅ Navigasi balik ke Favorite
     }
   };
 
@@ -41,7 +48,7 @@ const Favorite = () => {
         {/* Header */}
         <Text style={[styles.header, { fontFamily: FONTS.BOLD }]}>Favorit</Text>
 
-        {/* Subtab */}
+        {/* Subtabs */}
         <View style={styles.tabContainer}>
           <TouchableOpacity onPress={() => handleSubTabPress('favorited')} style={styles.tabButton}>
             <Text
@@ -70,19 +77,34 @@ const Favorite = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Konten list favorit bisa ditambahkan di sini */}
-        <View style={{ flex: 1 }}>
-          {/* Placeholder */}
+        {/* Empty State */}
+        <View style={styles.emptyContainer}>
+          <Image
+            source={require('../../assets/empty-history.png')}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <Text style={[styles.emptyTitle, { fontFamily: FONTS.SEMIBOLD }]}>
+            Belum ada riwayat properti terbaru
+          </Text>
+          <Text style={[styles.emptyDesc, { fontFamily: FONTS.REGULAR }]}>
+            Riwayat properti yang pernah Anda lihat akan ditampilkan di sini
+          </Text>
+
+          <TouchableOpacity style={styles.searchButton}>
+            <Text style={[styles.searchButtonText, { fontFamily: FONTS.MEDIUM }]}>
+              Cari Kost
+            </Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
 
-      {/* Bottom Navigation */}
       <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
     </View>
   );
 };
 
-export default Favorite;
+export default Viewed;
 
 const styles = StyleSheet.create({
   container: {
@@ -99,10 +121,8 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderColor: '#E0E0E0',
-    marginBottom: 16,
   },
   tabButton: {
     flex: 1,
@@ -117,9 +137,41 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
   },
   activeLine: {
-    marginTop: 4,
     height: 2,
     backgroundColor: '#4CAF50',
+    marginTop: 4,
     width: '100%',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  image: {
+    width: 160,
+    height: 160,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyDesc: {
+    fontSize: 14,
+    color: '#555555',
+    textAlign: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  searchButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+  },
+  searchButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
   },
 });

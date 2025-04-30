@@ -11,6 +11,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import BottomNavBar from './src/components/BottomNavBar';
 import MyKostScreen from './src/screens/MyKostScreen';
 import FavoriteScreen from './src/screens/FavoriteScreen';
+import ViewedScreen from './src/screens/ViewedScreens'; // Ganti dengan layar yang sesuai
 import {View, StyleSheet, Text} from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -73,6 +74,7 @@ function App(): React.JSX.Element {
           <Stack.Screen name="Main" component={MainNavigator} />
           <Stack.Screen name="MyKost" component={MyKostScreen} />
           <Stack.Screen name="Favorite" component={FavoriteScreen} />
+          <Stack.Screen name="Viewed" component={ViewedScreen} />{/* Ganti dengan layar yang sesuai */}
           {/* Tambahkan layar lain sesuai kebutuhan */}
         </Stack.Navigator>
       </NavigationContainer>
