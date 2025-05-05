@@ -1,15 +1,18 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import TextLink from '../components/TextLink';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getDatabase, ref, set } from 'firebase/database';
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -18,14 +21,48 @@ const FONTS = {
   SEMIBOLD: 'Geist-SemiBold',
 };
 
-const SignUpScreen = ({navigation}) => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+const SignUpScreen = ({ navigation }) => {
+  // const [photo, setPhoto] = useState(null); // Placeholder for photo
+  // const [photoBased64, setPhotoBased64] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignUp = () => {
-    navigation.navigate('SuccessSignUp');
+  const handleSignUp = async () => {
+    if (!fullName || !email || !password) {
+      Alert.alert('Error', 'Semua kolom harus diisi.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const auth = getAuth();
+      const db = getDatabase();
+
+      // Firebase Authentication: Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Update the user's display name and photo
+      await updateProfile(user, {
+        displayName: fullName,
+      });
+
+      // Save additional user data to Realtime Database
+      await set(ref(db, 'users/' + user.uid), {
+        fullName: fullName,
+        email: email,
+      });
+
+      Alert.alert('Success', 'Registrasi berhasil!');
+      navigation.navigate('SignIn'); // Navigate to SignIn screen
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', error.message || 'Terjadi kesalahan saat mendaftar.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,17 +77,9 @@ const SignUpScreen = ({navigation}) => {
 
       <Input
         label="Nama Lengkap"
-        value={name}
-        onChangeText={setName}
+        value={fullName}
+        onChangeText={setFullName}
         placeholder="Masukkan nama lengkap"
-      />
-
-      <Input
-        label="Nomor Handphone"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-        placeholder="Masukkan nomor handphone"
       />
 
       <Input
@@ -69,7 +98,7 @@ const SignUpScreen = ({navigation}) => {
         isPassword={true}
       />
 
-      <Button title="Daftar" onPress={handleSignUp} />
+      <Button title={loading ? 'Loading...' : 'Daftar'} onPress={handleSignUp} disabled={loading} />
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Sudah punya akun CozyKost? </Text>

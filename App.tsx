@@ -16,7 +16,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import SettingScreen from './src/screens/SettingScreen'; // Ganti dengan layar yang sesuai
 import EditProfileScreen from './src/screens/EditProfile'; // Ganti dengan layar yang sesuai
 import {View, StyleSheet, Text, Settings} from 'react-native';
-
+import './src/config/Firebase'
 const Stack = createNativeStackNavigator();
 
 function MainNavigator({navigation}: any) {
