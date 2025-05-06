@@ -25,40 +25,52 @@ const FONTS = {
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState('Home');
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({
+    name: '',
+    phone: ''
+  });
   const [kosts, setKosts] = useState([]);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    fetchUserData();
+    fetchKosts();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
       const user = auth.currentUser;
       if (user) {
         const userRef = ref(database, `users/${user.uid}`);
         const snapshot = await get(userRef);
+        
         if (snapshot.exists()) {
-          setUserData(snapshot.val());
+          const data = snapshot.val();
+          setUserData({
+            name: data.name || 'User',
+            phone: data.phone || ''
+          });
         }
       }
-    };
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
 
-    const fetchKosts = async () => {
-      const kostsRef = ref(database, 'kosts');
-      const snapshot = await get(kostsRef);
-      if (snapshot.exists()) {
-        const kostsData = [];
-        snapshot.forEach((childSnapshot) => {
-          kostsData.push({
-            id: childSnapshot.key,
-            ...childSnapshot.val()
-          });
+  const fetchKosts = async () => {
+    const kostsRef = ref(database, 'kosts');
+    const snapshot = await get(kostsRef);
+    if (snapshot.exists()) {
+      const kostsData = [];
+      snapshot.forEach((childSnapshot) => {
+        kostsData.push({
+          id: childSnapshot.key,
+          ...childSnapshot.val()
         });
-        setKosts(kostsData);
-      }
-    };
-
-    fetchUserData();
-    fetchKosts();
-  }, []);
+      });
+      setKosts(kostsData);
+    }
+  };
 
   const handleSaveKost = async (kostId) => {
     try {
