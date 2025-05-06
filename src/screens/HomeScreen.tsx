@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,12 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import BottomNavBar from '../components/BottomNavBar';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import BottomNavBar from '../componets/BottomNavBar';
+import { ref, set, get, push } from "firebase/database";
+import { auth, database } from "../config/Firebase";
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -21,21 +23,69 @@ const FONTS = {
   SEMIBOLD: 'Geist-SemiBold',
 };
 
-type RootStackParamList = {
-  Home: undefined;
-  MyKost: undefined;
-  Favorite: undefined;
-  Profile: undefined;
-};
-
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState('Home');
+  const [userData, setUserData] = useState(null);
+  const [kosts, setKosts] = useState([]);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setUserData(snapshot.val());
+        }
+      }
+    };
+
+    const fetchKosts = async () => {
+      const kostsRef = ref(database, 'kosts');
+      const snapshot = await get(kostsRef);
+      if (snapshot.exists()) {
+        const kostsData = [];
+        snapshot.forEach((childSnapshot) => {
+          kostsData.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          });
+        });
+        setKosts(kostsData);
+      }
+    };
+
+    fetchUserData();
+    fetchKosts();
+  }, []);
+
+  const handleSaveKost = async (kostId) => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const savedRef = ref(database, `users/${user.uid}/saved/${kostId}`);
+        await set(savedRef, true);
+        showMessage({
+          message: "Success",
+          description: "Kost saved successfully!",
+          type: "success"
+        });
+      }
+    } catch (error) {
+      showMessage({
+        message: "Error",
+        description: error.message,
+        type: "danger"
+      });
+    }
+  };
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
-    navigation.navigate(tabName as keyof RootStackParamList); // Navigasi ke layar berdasarkan tabName
+    navigation.navigate(tabName as keyof RootStackParamList);
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -48,18 +98,18 @@ const HomeScreen = () => {
           <Text style={styles.logoText}>COZYKOST</Text>
         </View>
         <TouchableOpacity>
-          <FontAwesome6 name="bell" size={24} color="black" />
+          {/* <Ionicons name="notifications-outline" size={24} color="black" /> */}
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.searchBarContainer}>
-          <FontAwesome6
-            name="magnifying-glass"
+          {/* <Ionicons */}
+            {/* name="search-outline"
             size={16}
             color="#999"
             style={styles.searchIcon}
-          />
+          /> */}
           <TextInput
             style={styles.searchInput}
             placeholder="Cari kost"
@@ -68,28 +118,30 @@ const HomeScreen = () => {
         </View>
 
         <View style={styles.greetingContainer}>
-          <Text style={styles.greetingText}>Hai, User!</Text>
+          <Text style={styles.greetingText}>
+            Hai, {userData?.name || 'User'}!
+          </Text>
           <Text style={styles.subGreetingText}>Lagi mau ngekost?</Text>
         </View>
 
         <View style={styles.categoriesContainer}>
           <TouchableOpacity style={styles.categoryCard}>
             <View style={styles.categoryIconContainer}>
-              <FontAwesome6 name="mars" size={24} color="#5CB85C" />
+              {/* <Ionicons name="male" size={24} color="#5CB85C" /> */}
             </View>
             <Text style={styles.categoryText}>Kosan Putra</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.categoryCard}>
             <View style={styles.categoryIconContainer}>
-              <FontAwesome6 name="venus" size={24} color="#FF6B81" />
+              {/* <Ionicons name="female" size={24} color="#FF6B81" /> */}
             </View>
             <Text style={styles.categoryText}>Kosan Putri</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.categoryCard}>
             <View style={styles.categoryIconContainer}>
-              <FontAwesome6 name="star" size={24} color="#FFD700" />
+              {/* <Ionicons name="star" size={24} color="#FFD700" /> */}
             </View>
             <Text style={styles.categoryText}>Paling populer</Text>
           </TouchableOpacity>
@@ -130,13 +182,13 @@ const HomeScreen = () => {
             Scan QR dan langsung bayar di tempat
           </Text>
           <View style={styles.scanIconContainer}>
-            <FontAwesome6 name="qrcode" size={16} color="#666" />
-            <FontAwesome6
-              name="expand"
+            {/* <Ionicons name="qr-code" size={16} color="#666" /> */}
+            {/* <Ionicons */}
+              {/* name="expand"
               size={14}
               color="#666"
               style={styles.expandIcon}
-            />
+            /> */}
           </View>
         </TouchableOpacity>
 
@@ -165,11 +217,11 @@ const HomeScreen = () => {
             contentContainerStyle={styles.horizontalScrollContent}>
             <TouchableOpacity style={styles.nearPropertyCard}>
               <View style={styles.categoryBadge}>
-                <FontAwesome6 name="house" size={12} color="#333" />
+                {/* <Ionicons name="home" size={12} color="#333" /> */}
                 <Text style={styles.categoryBadgeText}>Kamar kos</Text>
               </View>
               <TouchableOpacity style={styles.favoriteButton}>
-                <FontAwesome6 name="heart" size={16} color="#DDD" />
+                {/* <Ionicons name="heart-outline" size={16} color="#DDD" /> */}
               </TouchableOpacity>
               <Image
                 source={{
@@ -179,22 +231,22 @@ const HomeScreen = () => {
               />
               <Text style={styles.nearPropertyName}>Kost Harmony</Text>
               <View style={styles.locationRow}>
-                <FontAwesome6 name="location-dot" size={12} color="#666" />
+                {/* <Ionicons name="location-outline" size={12} color="#666" /> */}
                 <Text style={styles.locationText}>Malalayang, Manado</Text>
               </View>
               <View style={styles.ratingBadge}>
-                <FontAwesome6 name="star" size={12} color="#FFD700" solid />
+                {/* <Ionicons name="star" size={12} color="#FFD700" /> */}
                 <Text style={styles.ratingText}>4.5</Text>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.nearPropertyCard}>
               <View style={styles.categoryBadge}>
-                <FontAwesome6 name="house" size={12} color="#333" />
+                {/* <Ionicons name="home" size={12} color="#333" /> */}
                 <Text style={styles.categoryBadgeText}>Penginapan harian</Text>
               </View>
               <TouchableOpacity style={styles.favoriteButton}>
-                <FontAwesome6 name="heart" size={16} color="#DDD" />
+                {/* <Ionicons name="heart-outline" size={16} color="#DDD" /> */}
               </TouchableOpacity>
               <Image
                 source={{
@@ -204,13 +256,13 @@ const HomeScreen = () => {
               />
               <Text style={styles.nearPropertyName}>Embun House</Text>
               <View style={styles.locationRow}>
-                <FontAwesome6 name="location-dot" size={12} color="#666" />
+                {/* <Ionicons name="location-outline" size={12} color="#666" /> */}
                 <Text style={styles.locationText}>
                   Airmadidi, Minahasa Utara
                 </Text>
               </View>
               <View style={styles.ratingBadge}>
-                <FontAwesome6 name="star" size={12} color="#FFD700" solid />
+                {/* <Ionicons name="star" size={12} color="#FFD700" /> */}
                 <Text style={styles.ratingText}>4.3</Text>
               </View>
             </TouchableOpacity>
@@ -239,21 +291,21 @@ const HomeScreen = () => {
               </Text>
               <View style={styles.facilityContainer}>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bed"
+                  {/* <Ionicons */}
+                    {/* name="bed-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>5 Bedroom</Text>
                 </View>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bath"
+                  {/* <Ionicons */}
+                    {/* name="bath-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>2 Bathroom</Text>
                 </View>
               </View>
@@ -273,21 +325,21 @@ const HomeScreen = () => {
               <Text style={styles.locationText}>Paal Dua, Manado</Text>
               <View style={styles.facilityContainer}>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bed"
+                  {/* <Ionicons */}
+                    {/* name="bed-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>6 Bedroom</Text>
                 </View>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bath"
+                  {/* <Ionicons */}
+                    {/* name="bath-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>2 Bathroom</Text>
                 </View>
               </View>
