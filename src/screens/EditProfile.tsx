@@ -9,7 +9,7 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 
 const EditProfile = () => {
@@ -48,7 +48,7 @@ const EditProfile = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}> {/* Tombol Back */}
-          <Icon name="arrow-left" size={24} color="#fff" />
+          {/* <Icon name="arrow-left" size={24} color="#fff" /> */}
         </TouchableOpacity>
         <Text style={styles.headerText}>Edit Profile</Text>
         <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
