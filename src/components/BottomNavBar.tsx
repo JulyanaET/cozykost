@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 interface BottomNavBarProps {
   activeTab: string;
@@ -13,11 +12,12 @@ const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
       <TouchableOpacity
         style={styles.tabItem}
         onPress={() => onTabPress('Home')}>
-        <FontAwesome6
-          name="house"
-          size={20}
-          color={activeTab === 'Home' ? '#5CB85C' : '#999'}
-          solid={activeTab === 'Home'}
+        <Image
+          source={activeTab === 'Home' 
+            ? require('../../assets/home-active.png')
+            : require('../../assets/home.png')
+          }
+          style={styles.icon}
         />
         <Text
           style={[
@@ -31,16 +31,21 @@ const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
       <TouchableOpacity
         style={styles.tabItem}
         onPress={() => onTabPress('Favorite')}>
-        <FontAwesome6
-          name="bookmark"
-          size={20}
-          color={activeTab === 'Favorite' ? '#5CB85C' : '#999'}
-          solid={activeTab === 'Saved'}
+        <Image
+          source={activeTab === 'Favorite'
+            ? require('../../assets/bookmark-active.png')
+            : require('../../assets/bookmark.png')
+          }
+          style={[
+            styles.icon,
+            activeTab === 'Favorite' && styles.activeIcon
+          ]}
         />
         <Text
           style={[
             styles.tabLabel,
-            { color: activeTab === 'Favorite' ? '#5CB85C' : '#999' },
+            { color: activeTab === 'Favorite' ? '#000' : '#999' },
+            activeTab === 'Favorite' && styles.activeTabLabel
           ]}>
           Saved
         </Text>
@@ -49,11 +54,12 @@ const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
       <TouchableOpacity
         style={styles.tabItem}
         onPress={() => onTabPress('MyKost')}>
-        <FontAwesome6
-          name="building"
-          size={20}
-          color={activeTab === 'MyKost' ? '#5CB85C' : '#999'}
-          solid={activeTab === 'MyKost'}
+        <Image
+          source={activeTab === 'MyKost'
+            ? require('../../assets/building-active.png')
+            : require('../../assets/building.png')
+          }
+          style={styles.icon}
         />
         <Text
           style={[
@@ -67,11 +73,12 @@ const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
       <TouchableOpacity
         style={styles.tabItem}
         onPress={() => onTabPress('Profile')}>
-        <FontAwesome6
-          name="user"
-          size={20}
-          color={activeTab === 'Profile' ? '#5CB85C' : '#999'}
-          solid={activeTab === 'Profile'}
+        <Image
+          source={activeTab === 'Profile'
+            ? require('../../assets/user-active.png')
+            : require('../../assets/user.png')
+          }
+          style={styles.icon}
         />
         <Text
           style={[
@@ -88,24 +95,37 @@ const BottomNavBar = ({ activeTab, onTabPress }: BottomNavBarProps) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: 60,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
+    borderTopColor: '#eee',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: 8,
   },
   tabItem: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    marginBottom: 4,
   },
   tabLabel: {
     fontSize: 12,
-    marginTop: 4,
+    textAlign: 'center',
+  },
+  activeIcon: {
+    tintColor: '#000', // This will make the active icon black
+  },
+  activeTabLabel: {
+    fontWeight: 'bold',
   },
 });
 
