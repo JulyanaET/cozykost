@@ -9,23 +9,34 @@ import SignUpScreen from './src/screens/SignUpScreen';
 import SuccessSignUpScreen from './src/screens/SuccessSignUpScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import BottomNavBar from './src/components/BottomNavBar';
-import {View, StyleSheet} from 'react-native';
-
+import MyKostScreen from './src/screens/MyKostScreen';
+import FavoriteScreen from './src/screens/FavoriteScreen';
+import ViewedScreen from './src/screens/ViewedScreens';
+import ProfileScreen from './src/screens/ProfileScreen';
+import SettingScreen from './src/screens/SettingScreen'; // Ganti dengan layar yang sesuai
+import EditProfileScreen from './src/screens/EditProfile'; // Ganti dengan layar yang sesuai
+import {View, StyleSheet, Text, Settings} from 'react-native';
+import './src/config/Firebase'
 const Stack = createNativeStackNavigator();
 
-function MainNavigator() {
+function MainNavigator({navigation}: any) {
   const [activeTab, setActiveTab] = useState('Home');
+
+  const handleTabPress = (tabName: string) => {
+    setActiveTab(tabName);
+    navigation.navigate(tabName); // Navigasi ke layar berdasarkan tabName
+  };
 
   const renderScreen = () => {
     switch (activeTab) {
       case 'Home':
         return <HomeScreen />;
       case 'Saved':
-        return <View style={styles.placeholderScreen} />;
-      case 'History':
-        return <View style={styles.placeholderScreen} />;
+        return <FavoriteScreen />;
+      case 'MyKost':
+        return <MyKostScreen />;
       case 'Profile':
-        return <View style={styles.placeholderScreen} />;
+        return <ProfileScreen />;
       default:
         return <HomeScreen />;
     }
@@ -34,7 +45,7 @@ function MainNavigator() {
   return (
     <View style={styles.container}>
       {renderScreen()}
-      <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+      <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
     </View>
   );
 }
@@ -59,11 +70,20 @@ function App(): React.JSX.Element {
           screenOptions={{
             headerShown: false,
           }}>
+
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SuccessSignUp" component={SuccessSignUpScreen} />
           <Stack.Screen name="Main" component={MainNavigator} />
+          <Stack.Screen name="MyKost" component={MyKostScreen} />
+          <Stack.Screen name="Favorite" component={FavoriteScreen} />
+          <Stack.Screen name="Viewed" component={ViewedScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Setting" component={SettingScreen} />  
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+         
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

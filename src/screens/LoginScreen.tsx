@@ -6,10 +6,10 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import Input from '../components/Input';
-import Button from '../components/Button';
-import TextLink from '../components/TextLink';
+// import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import Input from '../componets/Input';
+import Button from '../componets/Button';
+import TextLink from '../componets/TextLink';
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -26,7 +26,7 @@ const LoginScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <FontAwesome6 name="chevron-left" size={24} color="black" />
+          {/* <FontAwesome6 name="chevron-left" size={24} color="black" /> */}
         </TouchableOpacity>
       </View>
 

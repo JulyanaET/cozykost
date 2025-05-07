@@ -5,11 +5,14 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import Input from '../components/Input';
-import Button from '../components/Button';
-import TextLink from '../components/TextLink';
+import Input from '../componets/Input';
+import Button from '../componets/Button';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { ref, set } from "firebase/database";
+import { auth, database } from "../config/Firebase";
+import { showMessage } from "react-native-flash-message";
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -18,65 +21,118 @@ const FONTS = {
   SEMIBOLD: 'Geist-SemiBold',
 };
 
-const SignUpScreen = ({navigation}) => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const SignUpScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const handleSignUp = () => {
-    navigation.navigate('SuccessSignUp');
+  const handleSignUp = async () => {
+    if (!email || !password || !name || !phone) {
+      showMessage({
+        message: "Error",
+        description: "All fields are required",
+        type: "danger",
+      });
+      return;
+    }
+
+    try {
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        email, 
+        password
+      );
+      const userId = userCredential.user.uid;
+
+      // Save user data to Realtime Database
+      await set(ref(database, 'users/' + userId), {
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,// Add phone field in signup form
+        createdAt: new Date().toISOString(),
+        // Add any additional user data you want to store
+      });
+
+      showMessage({
+        message: "Success",
+        description: "Account created successfully! Please sign in.",
+        type: "success",
+        duration: 3000,
+      });
+
+      navigation.navigate("Login");
+    } catch (error) {
+      showMessage({
+        message: "Error",
+        description: error.message,
+        type: "danger",
+      });
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <FontAwesome6 name="chevron-left" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
+      {/* <StatusBar backgroundColor="#1E1E1E" barStyle="light-content" /> */}
 
-      <Text style={styles.title}>Daftar</Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>Sign Up</Text>
 
-      <Input
-        label="Nama Lengkap"
-        value={name}
-        onChangeText={setName}
-        placeholder="Masukkan nama lengkap"
-      />
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../../assets/cozykost.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
 
-      <Input
-        label="Nomor Handphone"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-        placeholder="Masukkan nomor handphone"
-      />
+        <View style={styles.formContainer}>
+          <Input
+            label="Name"
+            placeholder="Type your name"
+            value={name}
+            onChangeText={setName}
+          />
 
-      <Input
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        placeholder="Masukkan email"
-      />
+          <Input
+            label="Email"
+            placeholder="Type your email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
 
-      <Input
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Masukkan password"
-        isPassword={true}
-      />
+          <Input
+            label="Phone"
+            placeholder="Type your phone number"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
 
-      <Button title="Daftar" onPress={handleSignUp} />
+          <Input
+            label="Password"
+            placeholder="Type your password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Sudah punya akun CozyKost? </Text>
-        <TextLink
-          text="Login Sekarang"
-          onPress={() => navigation.navigate('Login')}
-        />
+          <Button
+            title="SIGN UP"
+            onPress={handleSignUp}
+            type="primary"
+            style={styles.signUpButton}
+          />
+
+          <Button
+            title="Back to Sign In"
+            onPress={() => navigation.goBack()}
+            type="secondary"
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -98,6 +154,21 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: '#000000',
   },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  formContainer: {
+    marginTop: 20,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  image: {
+    width: 200,
+    height: 200,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -107,6 +178,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: FONTS.REGULAR,
     color: '#000000',
+  },
+  signUpButton: {
+    marginTop: 20,
   },
 });
 

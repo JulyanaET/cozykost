@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,13 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import BottomNavBar from '../componets/BottomNavBar';
+import { ref, set, get, onValue, remove } from "firebase/database";
+import { auth, database } from "../config/Firebase";
+import { showMessage } from "react-native-flash-message";
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -18,7 +24,159 @@ const FONTS = {
   SEMIBOLD: 'Geist-SemiBold',
 };
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = () => {
+  const [activeTab, setActiveTab] = useState('Home');
+  const [userData, setUserData] = useState({
+    name: '',
+    phone: ''
+  });
+  const [kosts, setKosts] = useState([]);
+  const [favorites, setFavorites] = useState({});
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    fetchUserData();
+    fetchKosts();
+    fetchFavorites();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          // Update userData with name from signup
+          setUserData({
+            name: data.name || 'User',
+            phone: data.phone || ''
+          });
+
+          // Set up real-time listener for user data changes
+          const unsubscribe = onValue(userRef, (snapshot) => {
+            if (snapshot.exists()) {
+              const updatedData = snapshot.val();
+              setUserData({
+                name: updatedData.name || 'User',
+                phone: updatedData.phone || ''
+              });
+            }
+          });
+
+          // Cleanup listener on unmount
+          return () => unsubscribe();
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  const fetchKosts = async () => {
+    const kostsRef = ref(database, 'kosts');
+    const snapshot = await get(kostsRef);
+    if (snapshot.exists()) {
+      const kostsData = [];
+      snapshot.forEach((childSnapshot) => {
+        kostsData.push({
+          id: childSnapshot.key,
+          ...childSnapshot.val()
+        });
+      });
+      setKosts(kostsData);
+    }
+  };
+
+  const fetchFavorites = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const favoritesRef = ref(database, `users/${user.uid}/favorites`);
+      onValue(favoritesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setFavorites(snapshot.val());
+        } else {
+          setFavorites({});
+        }
+      });
+    }
+  };
+
+  const handleSaveKost = async (kostId) => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const savedRef = ref(database, `users/${user.uid}/saved/${kostId}`);
+        await set(savedRef, true);
+        showMessage({
+          message: "Success",
+          description: "Kost saved successfully!",
+          type: "success"
+        });
+      }
+    } catch (error) {
+      showMessage({
+        message: "Error",
+        description: error.message,
+        type: "danger"
+      });
+    }
+  };
+
+  const toggleFavorite = async (kost) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        showMessage({
+          message: "Error",
+          description: "Please login first",
+          type: "warning"
+        });
+        return;
+      }
+
+      const favoriteRef = ref(database, `users/${user.uid}/favorites/${kost.id}`);
+      
+      if (favorites[kost.id]) {
+        // Remove from favorites
+        await remove(favoriteRef);
+        showMessage({
+          message: "Success",
+          description: "Removed from favorites",
+          type: "success"
+        });
+      } else {
+        // Add to favorites
+        await set(favoriteRef, {
+          id: kost.id,
+          name: kost.name,
+          location: kost.location,
+          price: kost.price,
+          image: kost.image,
+          timestamp: Date.now()
+        });
+        showMessage({
+          message: "Success",
+          description: "Added to favorites",
+          type: "success"
+        });
+      }
+    } catch (error) {
+      showMessage({
+        message: "Error",
+        description: error.message,
+        type: "danger"
+      });
+    }
+  };
+
+  const handleTabPress = (tabName: string) => {
+    setActiveTab(tabName);
+    navigation.navigate(tabName as keyof RootStackParamList);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -31,18 +189,18 @@ const HomeScreen = ({navigation}) => {
           <Text style={styles.logoText}>COZYKOST</Text>
         </View>
         <TouchableOpacity>
-          <FontAwesome6 name="bell" size={24} color="black" />
+          {/* <Ionicons name="notifications-outline" size={24} color="black" /> */}
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.searchBarContainer}>
-          <FontAwesome6
-            name="magnifying-glass"
+          {/* <Ionicons */}
+            {/* name="search-outline"
             size={16}
             color="#999"
             style={styles.searchIcon}
-          />
+          /> */}
           <TextInput
             style={styles.searchInput}
             placeholder="Cari kost"
@@ -51,32 +209,15 @@ const HomeScreen = ({navigation}) => {
         </View>
 
         <View style={styles.greetingContainer}>
-          <Text style={styles.greetingText}>Hai, User!</Text>
-          <Text style={styles.subGreetingText}>Lagi mau ngekost?</Text>
+          <Text style={[styles.greetingText, { fontFamily: FONTS.BOLD }]}>
+            Hai, {userData.name}!
+          </Text>
+          <Text style={[styles.subGreetingText, { fontFamily: FONTS.REGULAR }]}>
+            Lagi mau ngekost?
+          </Text>
         </View>
 
-        <View style={styles.categoriesContainer}>
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.categoryIconContainer}>
-              <FontAwesome6 name="mars" size={24} color="#5CB85C" />
-            </View>
-            <Text style={styles.categoryText}>Kosan Putra</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.categoryIconContainer}>
-              <FontAwesome6 name="venus" size={24} color="#FF6B81" />
-            </View>
-            <Text style={styles.categoryText}>Kosan Putri</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.categoryIconContainer}>
-              <FontAwesome6 name="star" size={24} color="#FFD700" />
-            </View>
-            <Text style={styles.categoryText}>Paling populer</Text>
-          </TouchableOpacity>
-        </View>
+       
 
         <View style={styles.bannerContainer}>
           <Image
@@ -113,13 +254,13 @@ const HomeScreen = ({navigation}) => {
             Scan QR dan langsung bayar di tempat
           </Text>
           <View style={styles.scanIconContainer}>
-            <FontAwesome6 name="qrcode" size={16} color="#666" />
-            <FontAwesome6
-              name="expand"
+            {/* <Ionicons name="qr-code" size={16} color="#666" /> */}
+            {/* <Ionicons */}
+              {/* name="expand"
               size={14}
               color="#666"
               style={styles.expandIcon}
-            />
+            /> */}
           </View>
         </TouchableOpacity>
 
@@ -148,11 +289,28 @@ const HomeScreen = ({navigation}) => {
             contentContainerStyle={styles.horizontalScrollContent}>
             <TouchableOpacity style={styles.nearPropertyCard}>
               <View style={styles.categoryBadge}>
-                <FontAwesome6 name="house" size={12} color="#333" />
+                <Image 
+                  source={require('../../assets/home.png')}
+                  style={styles.categoryIcon}
+                />
                 <Text style={styles.categoryBadgeText}>Kamar kos</Text>
               </View>
-              <TouchableOpacity style={styles.favoriteButton}>
-                <FontAwesome6 name="heart" size={16} color="#DDD" />
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite({
+                  id: 'kost-1', // Add unique ID for each kost
+                  name: 'Kost Harmony',
+                  location: 'Malalayang, Manado',
+                  price: '1.500.000',
+                  image: 'https://teknologiraya.com/wp-content/uploads/2024/03/memilih-kos-kosan.webp'
+                })}>
+                <Image 
+                  source={favorites['kost-1'] 
+                    ? require('../../assets/love.png')
+                    : require('../../assets/love.png')
+                  }
+                  style={styles.favoriteIcon}
+                />
               </TouchableOpacity>
               <Image
                 source={{
@@ -162,22 +320,87 @@ const HomeScreen = ({navigation}) => {
               />
               <Text style={styles.nearPropertyName}>Kost Harmony</Text>
               <View style={styles.locationRow}>
-                <FontAwesome6 name="location-dot" size={12} color="#666" />
+                {/* <Ionicons name="location-outline" size={12} color="#666" /> */}
                 <Text style={styles.locationText}>Malalayang, Manado</Text>
               </View>
               <View style={styles.ratingBadge}>
-                <FontAwesome6 name="star" size={12} color="#FFD700" solid />
+                {/* <Ionicons name="star" size={12} color="#FFD700" /> */}
                 <Text style={styles.ratingText}>4.5</Text>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.nearPropertyCard}>
               <View style={styles.categoryBadge}>
-                <FontAwesome6 name="house" size={12} color="#333" />
+                <Image 
+                  source={require('../../assets/home.png')}
+                  style={styles.categoryIcon}
+                />
                 <Text style={styles.categoryBadgeText}>Penginapan harian</Text>
               </View>
-              <TouchableOpacity style={styles.favoriteButton}>
-                <FontAwesome6 name="heart" size={16} color="#DDD" />
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite({
+                  id: 'penginapan-1',
+                  name: 'Villa Sunset',
+                  location: 'Tomohon, Sulawesi Utara',
+                  price: '350.000',
+                  image: 'https://storage.googleapis.com/storage-ajaib-prd-platform-wp-artifact/2020/10/Kos-kosan.jpg'
+                })}>
+                <Image 
+                  source={favorites['penginapan-1'] 
+                    ? require('../../assets/love.png')
+                    : require('../../assets/love.png')
+                  }
+                  style={styles.favoriteIcon}
+                />
+              </TouchableOpacity>
+              <Image
+                source={{
+                  uri: 'https://storage.googleapis.com/storage-ajaib-prd-platform-wp-artifact/2020/10/Kos-kosan.jpg',
+                }}
+                style={styles.nearPropertyImage}
+              />
+              <Text style={styles.nearPropertyName}>Villa Sunset</Text>
+              <View style={styles.locationRow}>
+                <Image 
+                  source={require('../../assets/location.png')}
+                  style={styles.locationIcon}
+                />
+                <Text style={styles.locationText}>Tomohon, Sulawesi Utara</Text>
+              </View>
+              <View style={styles.ratingBadge}>
+                <Image 
+                  source={require('../../assets/star.png')}
+                  style={styles.starIcon}
+                />
+                <Text style={styles.ratingText}>4.8</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.nearPropertyCard}>
+              <View style={styles.categoryBadge}>
+                <Image 
+                  source={require('../../assets/home.png')}
+                  style={styles.categoryIcon}
+                />
+                <Text style={styles.categoryBadgeText}>Penginapan harian</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite({
+                  id: 'penginapan-2',
+                  name: 'Embun House',
+                  location: 'Airmadidi, Minahasa Utara',
+                  price: '300.000',
+                  image: 'https://storage.googleapis.com/storage-ajaib-prd-platform-wp-artifact/2020/10/Kos-kosan.jpg'
+                })}>
+                <Image 
+                  source={favorites['penginapan-2'] 
+                    ? require('../../assets/love.png')
+                    : require('../../assets/love.png')
+                  }
+                  style={styles.favoriteIcon}
+                />
               </TouchableOpacity>
               <Image
                 source={{
@@ -187,13 +410,17 @@ const HomeScreen = ({navigation}) => {
               />
               <Text style={styles.nearPropertyName}>Embun House</Text>
               <View style={styles.locationRow}>
-                <FontAwesome6 name="location-dot" size={12} color="#666" />
-                <Text style={styles.locationText}>
-                  Airmadidi, Minahasa Utara
-                </Text>
+                <Image 
+                  source={require('../../assets/location.png')}
+                  style={styles.locationIcon}
+                />
+                <Text style={styles.locationText}>Airmadidi, Minahasa Utara</Text>
               </View>
               <View style={styles.ratingBadge}>
-                <FontAwesome6 name="star" size={12} color="#FFD700" solid />
+                <Image 
+                  source={require('../../assets/star.png')}
+                  style={styles.starIcon}
+                />
                 <Text style={styles.ratingText}>4.3</Text>
               </View>
             </TouchableOpacity>
@@ -222,21 +449,21 @@ const HomeScreen = ({navigation}) => {
               </Text>
               <View style={styles.facilityContainer}>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bed"
+                  {/* <Ionicons */}
+                    {/* name="bed-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>5 Bedroom</Text>
                 </View>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bath"
+                  {/* <Ionicons */}
+                    {/* name="bath-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>2 Bathroom</Text>
                 </View>
               </View>
@@ -256,21 +483,21 @@ const HomeScreen = ({navigation}) => {
               <Text style={styles.locationText}>Paal Dua, Manado</Text>
               <View style={styles.facilityContainer}>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bed"
+                  {/* <Ionicons */}
+                    {/* name="bed-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>6 Bedroom</Text>
                 </View>
                 <View style={styles.facilityItem}>
-                  <FontAwesome6
-                    name="bath"
+                  {/* <Ionicons */}
+                    {/* name="bath-outline"
                     size={12}
                     color="#666"
                     style={styles.facilityIcon}
-                  />
+                  /> */}
                   <Text style={styles.facilityText}>2 Bathroom</Text>
                 </View>
               </View>
@@ -281,6 +508,7 @@ const HomeScreen = ({navigation}) => {
           <View style={{height: 80}} />
         </View>
       </ScrollView>
+      <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
     </SafeAreaView>
   );
 };
