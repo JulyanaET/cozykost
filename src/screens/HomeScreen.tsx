@@ -13,8 +13,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import BottomNavBar from '../componets/BottomNavBar';
-import { ref, set, get, push } from "firebase/database";
+import { ref, set, get, onValue, remove } from "firebase/database";
 import { auth, database } from "../config/Firebase";
+import { showMessage } from "react-native-flash-message";
 
 const FONTS = {
   REGULAR: 'Geist-Regular',
@@ -30,11 +31,13 @@ const HomeScreen = () => {
     phone: ''
   });
   const [kosts, setKosts] = useState([]);
+  const [favorites, setFavorites] = useState({});
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     fetchUserData();
     fetchKosts();
+    fetchFavorites();
   }, []);
 
   const fetchUserData = async () => {
@@ -46,10 +49,25 @@ const HomeScreen = () => {
         
         if (snapshot.exists()) {
           const data = snapshot.val();
+          // Update userData with name from signup
           setUserData({
             name: data.name || 'User',
             phone: data.phone || ''
           });
+
+          // Set up real-time listener for user data changes
+          const unsubscribe = onValue(userRef, (snapshot) => {
+            if (snapshot.exists()) {
+              const updatedData = snapshot.val();
+              setUserData({
+                name: updatedData.name || 'User',
+                phone: updatedData.phone || ''
+              });
+            }
+          });
+
+          // Cleanup listener on unmount
+          return () => unsubscribe();
         }
       }
     } catch (error) {
@@ -72,6 +90,20 @@ const HomeScreen = () => {
     }
   };
 
+  const fetchFavorites = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const favoritesRef = ref(database, `users/${user.uid}/favorites`);
+      onValue(favoritesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setFavorites(snapshot.val());
+        } else {
+          setFavorites({});
+        }
+      });
+    }
+  };
+
   const handleSaveKost = async (kostId) => {
     try {
       const user = auth.currentUser;
@@ -81,6 +113,53 @@ const HomeScreen = () => {
         showMessage({
           message: "Success",
           description: "Kost saved successfully!",
+          type: "success"
+        });
+      }
+    } catch (error) {
+      showMessage({
+        message: "Error",
+        description: error.message,
+        type: "danger"
+      });
+    }
+  };
+
+  const toggleFavorite = async (kost) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        showMessage({
+          message: "Error",
+          description: "Please login first",
+          type: "warning"
+        });
+        return;
+      }
+
+      const favoriteRef = ref(database, `users/${user.uid}/favorites/${kost.id}`);
+      
+      if (favorites[kost.id]) {
+        // Remove from favorites
+        await remove(favoriteRef);
+        showMessage({
+          message: "Success",
+          description: "Removed from favorites",
+          type: "success"
+        });
+      } else {
+        // Add to favorites
+        await set(favoriteRef, {
+          id: kost.id,
+          name: kost.name,
+          location: kost.location,
+          price: kost.price,
+          image: kost.image,
+          timestamp: Date.now()
+        });
+        showMessage({
+          message: "Success",
+          description: "Added to favorites",
           type: "success"
         });
       }
@@ -130,34 +209,15 @@ const HomeScreen = () => {
         </View>
 
         <View style={styles.greetingContainer}>
-          <Text style={styles.greetingText}>
-            Hai, {userData?.name || 'User'}!
+          <Text style={[styles.greetingText, { fontFamily: FONTS.BOLD }]}>
+            Hai, {userData.name}!
           </Text>
-          <Text style={styles.subGreetingText}>Lagi mau ngekost?</Text>
+          <Text style={[styles.subGreetingText, { fontFamily: FONTS.REGULAR }]}>
+            Lagi mau ngekost?
+          </Text>
         </View>
 
-        <View style={styles.categoriesContainer}>
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.categoryIconContainer}>
-              {/* <Ionicons name="male" size={24} color="#5CB85C" /> */}
-            </View>
-            <Text style={styles.categoryText}>Kosan Putra</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.categoryIconContainer}>
-              {/* <Ionicons name="female" size={24} color="#FF6B81" /> */}
-            </View>
-            <Text style={styles.categoryText}>Kosan Putri</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.categoryCard}>
-            <View style={styles.categoryIconContainer}>
-              {/* <Ionicons name="star" size={24} color="#FFD700" /> */}
-            </View>
-            <Text style={styles.categoryText}>Paling populer</Text>
-          </TouchableOpacity>
-        </View>
+       
 
         <View style={styles.bannerContainer}>
           <Image
@@ -229,11 +289,28 @@ const HomeScreen = () => {
             contentContainerStyle={styles.horizontalScrollContent}>
             <TouchableOpacity style={styles.nearPropertyCard}>
               <View style={styles.categoryBadge}>
-                {/* <Ionicons name="home" size={12} color="#333" /> */}
+                <Image 
+                  source={require('../../assets/home.png')}
+                  style={styles.categoryIcon}
+                />
                 <Text style={styles.categoryBadgeText}>Kamar kos</Text>
               </View>
-              <TouchableOpacity style={styles.favoriteButton}>
-                {/* <Ionicons name="heart-outline" size={16} color="#DDD" /> */}
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite({
+                  id: 'kost-1', // Add unique ID for each kost
+                  name: 'Kost Harmony',
+                  location: 'Malalayang, Manado',
+                  price: '1.500.000',
+                  image: 'https://teknologiraya.com/wp-content/uploads/2024/03/memilih-kos-kosan.webp'
+                })}>
+                <Image 
+                  source={favorites['kost-1'] 
+                    ? require('../../assets/love.png')
+                    : require('../../assets/love.png')
+                  }
+                  style={styles.favoriteIcon}
+                />
               </TouchableOpacity>
               <Image
                 source={{
@@ -254,11 +331,76 @@ const HomeScreen = () => {
 
             <TouchableOpacity style={styles.nearPropertyCard}>
               <View style={styles.categoryBadge}>
-                {/* <Ionicons name="home" size={12} color="#333" /> */}
+                <Image 
+                  source={require('../../assets/home.png')}
+                  style={styles.categoryIcon}
+                />
                 <Text style={styles.categoryBadgeText}>Penginapan harian</Text>
               </View>
-              <TouchableOpacity style={styles.favoriteButton}>
-                {/* <Ionicons name="heart-outline" size={16} color="#DDD" /> */}
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite({
+                  id: 'penginapan-1',
+                  name: 'Villa Sunset',
+                  location: 'Tomohon, Sulawesi Utara',
+                  price: '350.000',
+                  image: 'https://storage.googleapis.com/storage-ajaib-prd-platform-wp-artifact/2020/10/Kos-kosan.jpg'
+                })}>
+                <Image 
+                  source={favorites['penginapan-1'] 
+                    ? require('../../assets/love.png')
+                    : require('../../assets/love.png')
+                  }
+                  style={styles.favoriteIcon}
+                />
+              </TouchableOpacity>
+              <Image
+                source={{
+                  uri: 'https://storage.googleapis.com/storage-ajaib-prd-platform-wp-artifact/2020/10/Kos-kosan.jpg',
+                }}
+                style={styles.nearPropertyImage}
+              />
+              <Text style={styles.nearPropertyName}>Villa Sunset</Text>
+              <View style={styles.locationRow}>
+                <Image 
+                  source={require('../../assets/location.png')}
+                  style={styles.locationIcon}
+                />
+                <Text style={styles.locationText}>Tomohon, Sulawesi Utara</Text>
+              </View>
+              <View style={styles.ratingBadge}>
+                <Image 
+                  source={require('../../assets/star.png')}
+                  style={styles.starIcon}
+                />
+                <Text style={styles.ratingText}>4.8</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.nearPropertyCard}>
+              <View style={styles.categoryBadge}>
+                <Image 
+                  source={require('../../assets/home.png')}
+                  style={styles.categoryIcon}
+                />
+                <Text style={styles.categoryBadgeText}>Penginapan harian</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => toggleFavorite({
+                  id: 'penginapan-2',
+                  name: 'Embun House',
+                  location: 'Airmadidi, Minahasa Utara',
+                  price: '300.000',
+                  image: 'https://storage.googleapis.com/storage-ajaib-prd-platform-wp-artifact/2020/10/Kos-kosan.jpg'
+                })}>
+                <Image 
+                  source={favorites['penginapan-2'] 
+                    ? require('../../assets/love.png')
+                    : require('../../assets/love.png')
+                  }
+                  style={styles.favoriteIcon}
+                />
               </TouchableOpacity>
               <Image
                 source={{
@@ -268,13 +410,17 @@ const HomeScreen = () => {
               />
               <Text style={styles.nearPropertyName}>Embun House</Text>
               <View style={styles.locationRow}>
-                {/* <Ionicons name="location-outline" size={12} color="#666" /> */}
-                <Text style={styles.locationText}>
-                  Airmadidi, Minahasa Utara
-                </Text>
+                <Image 
+                  source={require('../../assets/location.png')}
+                  style={styles.locationIcon}
+                />
+                <Text style={styles.locationText}>Airmadidi, Minahasa Utara</Text>
               </View>
               <View style={styles.ratingBadge}>
-                {/* <Ionicons name="star" size={12} color="#FFD700" /> */}
+                <Image 
+                  source={require('../../assets/star.png')}
+                  style={styles.starIcon}
+                />
                 <Text style={styles.ratingText}>4.3</Text>
               </View>
             </TouchableOpacity>

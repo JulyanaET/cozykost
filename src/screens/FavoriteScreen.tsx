@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import BottomNavBar from '../components/BottomNavBar';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { ref, onValue, remove } from "firebase/database";
+import { showMessage } from "react-native-flash-message";
+import { auth, database } from "../config/Firebase";
+import BottomNavBar from '../componets/BottomNavBar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -14,7 +17,13 @@ type RootStackParamList = {
 const Favorite = () => {
   const [activeTab, setActiveTab] = useState('Favorite');
   const [activeSubTab, setActiveSubTab] = useState<'favorited' | 'viewed'>('favorited');
+  const [favorites, setFavorites] = useState([]);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    setActiveTab('Favorite');
+    fetchFavorites();
+  }, []);
 
   const handleTabPress = (tabName: string) => {
     setActiveTab(tabName);
@@ -28,6 +37,64 @@ const Favorite = () => {
     }
   };
 
+  const fetchFavorites = () => {
+    const user = auth.currentUser;
+    if (user) {
+      const favoritesRef = ref(database, `users/${user.uid}/favorites`);
+      onValue(favoritesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const favData = snapshot.val();
+          const favArray = Object.values(favData);
+          setFavorites(favArray);
+        }
+      });
+    }
+  };
+
+  const handleDeleteFavorite = async (itemId: string) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      const favoriteRef = ref(database, `users/${user.uid}/favorites/${itemId}`);
+      await remove(favoriteRef);
+  
+      showMessage({
+        message: "Success",
+        description: "Item removed from favorites",
+        type: "success"
+      });
+    } catch (error) {
+      showMessage({
+        message: "Error",
+        description: "Failed to remove item",
+        type: "danger"
+      });
+    }
+  };
+
+  const renderFavoriteItem = ({ item }) => (
+    <View style={styles.favoriteCard}>
+      <Image source={{ uri: item.image }} style={styles.kostImage} />
+      <View style={styles.kostInfo}>
+        <View style={styles.kostHeader}>
+          <Text style={styles.kostName}>{item.name}</Text>
+          <TouchableOpacity 
+            onPress={() => handleDeleteFavorite(item.id)}
+            style={styles.deleteButton}
+          >
+            <Image 
+              source={require('../../assets/trash.png')}
+              style={styles.deleteIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.kostLocation}>{item.location}</Text>
+        <Text style={styles.kostPrice}>Rp {item.price} / month</Text>
+      </View>
+    </View>
+  );
+
   const FONTS = {
     REGULAR: 'Geist-Regular',
     MEDIUM: 'Geist-Medium',
@@ -36,10 +103,10 @@ const Favorite = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
       <SafeAreaView style={styles.content}>
         {/* Header */}
-        <Text style={[styles.header, { fontFamily: FONTS.BOLD }]}>Favorit</Text>
+        <Text style={[styles.header, { fontFamily: FONTS.BOLD, color: '#000' }]}>Favorit</Text>
 
         {/* Subtab */}
         <View style={styles.tabContainer}>
@@ -70,14 +137,17 @@ const Favorite = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Konten list favorit bisa ditambahkan di sini */}
-        <View style={{ flex: 1 }}>
-          {/* Placeholder */}
-        </View>
+        {/* Konten list favorit */}
+        <FlatList
+          data={favorites}
+          renderItem={renderFavoriteItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContainer}
+        />
       </SafeAreaView>
 
       {/* Bottom Navigation */}
-      <BottomNavBar activeTab={activeTab} onTabPress={handleTabPress} />
+      <BottomNavBar activeTab="Favorite" onTabPress={handleTabPress} />
     </View>
   );
 };
@@ -96,6 +166,8 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     marginBottom: 24,
+    color: '#000',
+    fontWeight: 'bold',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -112,14 +184,60 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     color: '#999',
+    fontWeight: '500',
   },
   activeTabText: {
-    color: '#4CAF50',
+    color: '#5CB85C', // Changed to green
+    fontWeight: 'bold',
   },
   activeLine: {
     marginTop: 4,
     height: 2,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#5CB85C', // Changed to green
     width: '100%',
+  },
+  listContainer: {
+    padding: 16,
+  },
+  favoriteCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+    elevation: 2,
+  },
+  kostImage: {
+    width: '100%',
+    height: 150,
+  },
+  kostInfo: {
+    padding: 16,
+  },
+  kostHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  kostName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  kostLocation: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  kostPrice: {
+    fontSize: 14,
+    color: '#5CB85C',
+    fontWeight: '600',
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  deleteIcon: {
+    width: 20,
+    height: 20,
   },
 });

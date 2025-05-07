@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,125 @@ import {
   ScrollView,
   Modal,
   FlatList,
+  Image,
 } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+// import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ref, get, set, update } from "firebase/database";
+import { auth, database } from "../config/Firebase";
+import * as ImagePicker from 'react-native-image-picker';
+import { showMessage } from "react-native-flash-message";
+import { signOut } from "firebase/auth";
+
+type RootStackParamList = {
+  Profile: undefined;
+  EditProfile: undefined;
+  Login: undefined;
+};
 
 const EditProfile = () => {
-  const [gender, setGender] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [city, setCity] = useState('');
-  const [status, setStatus] = useState('');
-  const [education, setEducation] = useState('');
-  const [emergencyPhone, setEmergencyPhone] = useState('');
+  const [userData, setUserData] = useState({
+    name: '',
+    gender: '',
+    birthDate: '',
+    city: '',
+    status: '',
+    education: '',
+    emergencyPhone: '',
+    profileImage: null
+  });
   const [modalVisible, setModalVisible] = useState(false);
   const [currentPicker, setCurrentPicker] = useState('');
   const [options, setOptions] = useState<string[]>([]);
-  const navigation = useNavigation(); // Gunakan navigation untuk kembali ke layar sebelumnya
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          setUserData({
+            name: data.name || '',
+            gender: data.gender || '',
+            birthDate: data.birthDate || '',
+            city: data.city || '',
+            status: data.status || '',
+            education: data.education || '',
+            emergencyPhone: data.emergencyPhone || '',
+            profileImage: data.profileImage || null
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      showMessage({
+        message: 'Error',
+        description: 'Failed to load user data',
+        type: 'danger'
+      });
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `users/${user.uid}`);
+        await update(userRef, userData);
+        
+        showMessage({
+          message: 'Success',
+          description: 'Profile updated successfully',
+          type: 'success'
+        });
+        
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showMessage({
+        message: 'Error',
+        description: 'Failed to update profile',
+        type: 'danger'
+      });
+    }
+  };
+
+  const handleImagePicker = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 0.7,
+    };
+
+    ImagePicker.launchImageLibrary(options, async (response) => {
+      if (response.didCancel) return;
+
+      if (response.errorCode) {
+        showMessage({
+          message: 'Error',
+          description: response.errorMessage,
+          type: 'danger'
+        });
+        return;
+      }
+
+      if (response.assets && response.assets[0].uri) {
+        setUserData(prev => ({
+          ...prev,
+          profileImage: response.assets[0].uri
+        }));
+      }
+    });
+  };
 
   const openPicker = (pickerType: string, pickerOptions: string[]) => {
     setCurrentPicker(pickerType);
@@ -31,41 +135,70 @@ const EditProfile = () => {
   };
 
   const handleSelect = (value: string) => {
-    if (currentPicker === 'gender') {
-      setGender(value);
-    } else if (currentPicker === 'city') {
-      setCity(value);
-    } else if (currentPicker === 'status') {
-      setStatus(value);
-    } else if (currentPicker === 'education') {
-      setEducation(value);
-    }
+    setUserData(prev => ({
+      ...prev,
+      [currentPicker]: value
+    }));
     setModalVisible(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      showMessage({
+        message: 'Error',
+        description: 'Failed to logout',
+        type: 'danger'
+      });
+    }
   };
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}> {/* Tombol Back */}
-          {/* <Icon name="arrow-left" size={24} color="#fff" /> */}
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}>
+          <Image 
+            source={require('../../assets/backbutton.png')}
+            style={styles.backIcon}
+          />
         </TouchableOpacity>
         <Text style={styles.headerText}>Edit Profile</Text>
-        <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
+        <View style={{ width: 24 }} />
       </View>
 
-      {/* Profile Picture */}
       <View style={styles.profilePictureContainer}>
-        <View style={styles.profilePicture} />
+        <TouchableOpacity onPress={handleImagePicker}>
+          {userData.profileImage ? (
+            <Image
+              source={{ uri: userData.profileImage }}
+              style={styles.profilePicture}
+            />
+          ) : (
+            <View style={styles.profilePicture}>
+              {/* <Ionicons name="camera" size={32} color="#757575" /> */}
+            </View>
+          )}
+        </TouchableOpacity>
         <Text style={styles.uploadText}>Upload Foto Profil</Text>
       </View>
 
-      {/* Form */}
       <View style={styles.form}>
         <Text style={styles.label}>
           Nama Lengkap<Text style={styles.required}>*</Text>
         </Text>
-        <TextInput style={styles.input} placeholder="Masukkan nama lengkap" />
+        <TextInput
+          style={styles.input}
+          placeholder="Masukkan nama lengkap"
+          value={userData.name}
+          onChangeText={(text) => setUserData(prev => ({ ...prev, name: text }))}
+        />
 
         <Text style={styles.label}>
           Jenis Kelamin<Text style={styles.required}>*</Text>
@@ -74,7 +207,7 @@ const EditProfile = () => {
           style={styles.dropdown}
           onPress={() => openPicker('gender', ['Laki-laki', 'Perempuan'])}>
           <Text style={styles.dropdownText}>
-            {gender || 'Pilih jenis kelamin'}
+            {userData.gender || 'Pilih jenis kelamin'}
           </Text>
         </TouchableOpacity>
 
@@ -84,23 +217,23 @@ const EditProfile = () => {
         <TextInput
           style={styles.input}
           placeholder="Masukkan tanggal lahir"
-          value={birthDate}
-          onChangeText={setBirthDate}
+          value={userData.birthDate}
+          onChangeText={(text) => setUserData(prev => ({ ...prev, birthDate: text }))}
         />
 
         <Text style={styles.label}>Kota Asal</Text>
         <TextInput
           style={styles.input}
           placeholder="Masukkan kota asal"
-          value={city}
-          onChangeText={setCity}
+          value={userData.city}
+          onChangeText={(text) => setUserData(prev => ({ ...prev, city: text }))}
         />
 
         <Text style={styles.label}>Status</Text>
         <TouchableOpacity
           style={styles.dropdown}
           onPress={() => openPicker('status', ['Pelajar', 'Pekerja'])}>
-          <Text style={styles.dropdownText}>{status || 'Pilih status'}</Text>
+          <Text style={styles.dropdownText}>{userData.status || 'Pilih status'}</Text>
         </TouchableOpacity>
 
         <Text style={styles.label}>Pendidikan Terakhir</Text>
@@ -110,7 +243,7 @@ const EditProfile = () => {
             openPicker('education', ['SMA', 'Diploma', 'Sarjana'])
           }>
           <Text style={styles.dropdownText}>
-            {education || 'Pilih pendidikan terakhir'}
+            {userData.education || 'Pilih pendidikan terakhir'}
           </Text>
         </TouchableOpacity>
 
@@ -118,16 +251,21 @@ const EditProfile = () => {
         <TextInput
           style={styles.input}
           placeholder="Masukkan nomor handphone darurat"
-          value={emergencyPhone}
-          onChangeText={setEmergencyPhone}
+          value={userData.emergencyPhone}
+          onChangeText={(text) => setUserData(prev => ({ ...prev, emergencyPhone: text }))}
         />
       </View>
 
-      <TouchableOpacity style={styles.saveButton}>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Simpan</Text>
       </TouchableOpacity>
 
-      {/* Modal for Dropdown */}
+      <TouchableOpacity 
+        style={styles.logoutButton} 
+        onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
+
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -165,6 +303,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  backButton: {
+    padding: 8,
+  },
+  backIcon: {
+    width: 24,
+    height: 24,
+  },
   headerText: {
     color: '#fff',
     fontSize: 18,
@@ -179,6 +324,8 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   uploadText: {
     marginTop: 8,
@@ -221,6 +368,19 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  logoutButton: {
+    backgroundColor: '#FF3B30',
+    padding: 16,
+    alignItems: 'center',
+    margin: 16,
+    borderRadius: 4,
+    marginTop: 8,
+  },
+  logoutButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
